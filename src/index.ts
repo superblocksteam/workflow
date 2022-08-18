@@ -40,6 +40,8 @@ export default class WorkflowPlugin extends BasePlugin {
       }
       body[property.key] = val;
     });
+    const queryParams = Object.fromEntries((actionConfiguration.queryParams ?? []).map(({ key, value }) => [key, value]));
+
     if (isEmpty(actionConfiguration.workflow)) {
       throw new IntegrationError('No workflow selected, a workflow is required for workflow steps');
     }
@@ -48,7 +50,10 @@ export default class WorkflowPlugin extends BasePlugin {
       apiId: actionConfiguration.workflow,
       isPublished: true,
       environment,
-      executionParams: [{ key: 'body', value: body }],
+      executionParams: [
+        { key: 'body', value: body },
+        { key: 'params', value: queryParams }
+      ],
       agentCredentials,
       files: [],
       recursionContext,
@@ -65,7 +70,7 @@ export default class WorkflowPlugin extends BasePlugin {
   }
 
   dynamicProperties(): string[] {
-    return ['custom'];
+    return ['custom', 'queryParams'];
   }
 
   async metadata(datasourceConfiguration: WorkflowDatasourceConfiguration): Promise<DatasourceMetadataDto> {
