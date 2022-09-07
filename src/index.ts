@@ -30,15 +30,15 @@ export default class WorkflowPlugin extends BasePlugin {
       );
     }
 
-    const body = {};
+    const body: Record<string, unknown> = {};
     Object.entries(actionConfiguration.custom ?? {}).forEach(([key, property]) => {
       let val: unknown;
       try {
-        val = JSON.parse(property.value);
+        val = JSON.parse(property.value ?? '');
       } catch (err) {
         val = property.value;
       }
-      body[property.key] = val;
+      body[property.key ?? ''] = val;
     });
     const queryParams = Object.fromEntries((actionConfiguration.queryParams ?? []).map(({ key, value }) => [key, value]));
 
@@ -47,7 +47,7 @@ export default class WorkflowPlugin extends BasePlugin {
     }
 
     const res = await this.pluginConfiguration.workflowFetchAndExecuteFunc({
-      apiId: actionConfiguration.workflow,
+      apiId: actionConfiguration.workflow ?? '',
       isPublished: true,
       environment,
       executionParams: [
